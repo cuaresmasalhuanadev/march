@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Victor Cuaresma — Dashboard Financiero 🇵🇪</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #070b12;
+            --bg2: #0d1120;
+            --card: #111827;
+            --card2: #161e2e;
+            --card3: #1c2539;
+            --border: rgba(255, 255, 255, 0.06);
+            --border2: rgba(255, 255, 255, 0.10);
+            --nec: #06b6d4;
+            --nec2: #0e7490;
+            --des: #8b5cf6;
+            --des2: #6d28d9;
+            --aho: #10b981;
+            --aho2: #059669;
+            --danger: #ef4444;
+            --warn: #f59e0b;
+            --info: #3b82f6;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --muted2: #94a3b8;
+            --white: #fff;
+            --font: 'Inter', sans-serif;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, .4);
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden
+        }
+
+        /* ──────── SCROLLBAR ──────── */
+        ::-webkit-scrollbar {
+            width: 6px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--card3);
+            border-radius: 99px
+        }
+
+        /* ──────── GLOW ORBS bg ──────── */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: rgba(6, 182, 212, .06);
+            top: -100px;
+            left: -100px
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            background: rgba(139, 92, 246, .05);
+            bottom: -100px;
+            right: -100px
+        }
+
+        /* ──────── HEADER ──────── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: rgba(7, 11, 18, .85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--nec), var(--des));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, .2);
+        }
+
+        .logo-text h1 {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -.3px
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 1px
+        }
+
+        .header-clock {
+            text-align: right
+        }
+
+        .clock-time {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--nec);
+            line-height: 1;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums
+        }
+
+        .clock-date {
+            font-size: 11px;
+            color: var(--muted2);
+            margin-top: 2px
+        }
+
+        .clock-zone {
+            font-size: 10px;
+            color: var(--des);
+            font-weight: 700;
+            letter-spacing: .5px
+        }
+
+        /* ──────── LAYOUT ──────── */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 18px 80px
+        }
+
+        .sec {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            color: var(--muted);
+            margin: 28px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .sec::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border)
+        }
+
+        /* ──────── SALARY BAR ──────── */
+        .salary-bar {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(6, 182, 212, .08), rgba(139, 92, 246, .06));
+            border: 1px solid rgba(6, 182, 212, .2);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .salary-bar::before {
+            content: '💰';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 60px;
+            opacity: .05;
+            pointer-events: none
+        }
+
+        .salary-bar label {
+            font-size: 12px;
+            color: var(--muted2);
+            font-weight: 500;
+            white-space: nowrap
+        }
+
+        .sol-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1
+        }
+
+        .sol-sym {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--nec)
+        }
+
+        .salary-bar input[type=number] {
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(6, 182, 212, .3);
+            color: var(--white);
+            font-size: 24px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            width: 140px;
+            outline: none;
+            transition: border .2s, box-shadow .2s;
+            font-family: var(--font);
+        }
+
+        .salary-bar input[type=number]:focus {
+            border-color: var(--nec);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, .15)
+        }
+
+        .rule-badge {
+            background: linear-gradient(135deg, rgba(6, 182, 212, .15), rgba(139, 92, 246, .15));
+            color: var(--nec);
+            border: 1px solid rgba(6, 182, 212, .25);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 7px 16px;
+            border-radius: 99px;
+            white-space: nowrap;
+            letter-spacing: .3px;
+        }
+
+        /* ──────── STRIP CARDS ──────── */
+        .strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 18px
+        }
+
+        .scard {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 13px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform .2s;
+        }
+
+        .scard:hover {
+            transform: translateY(-2px)
+        }
+
+        .scard-label {
+            font-size: 10px;
+            color: var(--muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px
+        }
+
+        .scard-val {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1
+        }
+
+        /* ──────── RULE CARDS ──────── */
+        .rule-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px
+        }
+
+        .rcard {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+            transition: transform .22s, box-shadow .22s;
+        }
+
+        .rcard:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow)
+        }
+
+        .rcard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px
+        }
+
+        .rcard.nec::before {
+            background: linear-gradient(90deg, var(--nec), #38bdf8)
+        }
+
+        .rcard.des::before {
+            background: linear-gradient(90deg, var(--des), #ec4899)
+        }
+
+        .rcard.aho::before {
+            background: linear-gradient(90deg, var(--aho), #34d399)
+        }
+
+        .rcard-glow {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            filter: blur(50px);
+            pointer-events: none;
+            opacity: .12
+        }
+
+        .nec .rcard-glow {
+            background: var(--nec)
+        }
+
+        .des .rcard-glow {
+            background: var(--des)
+        }
+
+        .aho .rcard-glow {
+            background: var(--aho)
+        }
+
+        .rcard-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 14px
+        }
+
+        .nec .rcard-icon {
+            background: rgba(6, 182, 212, .12);
+            color: var(--nec)
+        }
+
+        .des .rcard-icon {
+            background: rgba(139, 92, 246, .12);
+            color: var(--des)
+        }
+
+        .aho .rcard-icon {
+            background: rgba(16, 185, 129, .12);
+            color: var(--aho)
+        }
+
+        .rcard-pct {
+            font-size: 40px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -2px
+        }
+
+        .nec .rcard-pct {
+            color: var(--nec)
+        }
+
+        .des .rcard-pct {
+            color: var(--des)
+        }
+
+        .aho .rcard-pct {
+            color: var(--aho)
+        }
+
+        .rcard-label {
+            font-size: 11px;
+            color: var(--muted);
+            margin: 4px 0 10px;
+            font-weight: 500
+        }
+
+        .rcard-amount {
+            font-size: 22px;
+            font-weight: 800
+        }
+
+        .rcard-used {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 5px
+        }
+
+        .pbar-wrap {
+            margin-top: 12px
+        }
+
+        .pbar-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 4px
+        }
+
+        .pbar {
+            height: 5px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 99px;
+            overflow: hidden
+        }
+
+        .pfill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .nec .pfill {
+            background: linear-gradient(90deg, var(--nec), #38bdf8)
+        }
+
+        .des .pfill {
+            background: linear-gradient(90deg, var(--des), #ec4899)
+        }
+
+        .aho .pfill {
+            background: linear-gradient(90deg, var(--aho), #34d399)
+        }
+
+        /* ──────── GRID LAYOUTS ──────── */
+        .g2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .g3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px
+        }
+
+        .g4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px
+        }
+
+        /* ──────── CARD ──────── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px
+        }
+
+        .card-h {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--white)
+        }
+
+        .card-h i {
+            opacity: .8
+        }
+
+        /* ──────── EXPENSE TABLE ──────── */
+        .etable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px
+        }
+
+        .etable th {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--muted);
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .etable td {
+            padding: 9px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            vertical-align: middle
+        }
+
+        .etable tr:last-child td {
+            border-bottom: none
+        }
+
+        .etable tr:hover td {
+            background: rgba(255, 255, 255, .02)
+        }
+
+        .etable td:last-child,
+        .etable th:last-child {
+            text-align: right;
+            font-weight: 700
+        }
+
+        .eicon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            font-size: 13px;
+            margin-right: 6px;
+            vertical-align: middle;
+            flex-shrink: 0
+        }
+
+        .ok {
+            color: var(--aho)
+        }
+
+        .warn {
+            color: var(--warn)
+        }
+
+        .danger {
+            color: var(--danger)
+        }
+
+        .info {
+            color: var(--info)
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-left: 5px
+        }
+
+        .tag-cut {
+            background: rgba(239, 68, 68, .15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, .3)
+        }
+
+        .tag-ok {
+            background: rgba(16, 185, 129, .15);
+            color: var(--aho);
+            border: 1px solid rgba(16, 185, 129, .3)
+        }
+
+        .tag-opt {
+            background: rgba(245, 158, 11, .15);
+            color: var(--warn);
+            border: 1px solid rgba(245, 158, 11, .3)
+        }
+
+        /* ──────── TOTAL DIVIDER ──────── */
+        .tdiv {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border2)
+        }
+
+        .tdiv .tl {
+            font-size: 12px;
+            font-weight: 700
+        }
+
+        .tdiv .tr {
+            font-size: 17px;
+            font-weight: 800
+        }
+
+        /* ──────── ALERT BOXES ──────── */
+        .abox {
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 11px;
+            line-height: 1.65;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-top: 10px
+        }
+
+        .abox.green {
+            background: rgba(16, 185, 129, .08);
+            border: 1px solid rgba(16, 185, 129, .2);
+            color: #6ee7b7
+        }
+
+        .abox.orange {
+            background: rgba(245, 158, 11, .08);
+            border: 1px solid rgba(245, 158, 11, .2);
+            color: #fde68a
+        }
+
+        .abox.red {
+            background: rgba(239, 68, 68, .08);
+            border: 1px solid rgba(239, 68, 68, .2);
+            color: #fca5a5
+        }
+
+        .abox.blue {
+            background: rgba(59, 130, 246, .08);
+            border: 1px solid rgba(59, 130, 246, .2);
+            color: #93c5fd
+        }
+
+        .abox i {
+            margin-top: 2px;
+            flex-shrink: 0
+        }
+
+        /* ──────── SAVINGS IMPROVEMENT CARDS ──────── */
+        .save-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform .2s, border-color .2s;
+        }
+
+        .save-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border2)
+        }
+
+        .save-card-top {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .save-emoji {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0
+        }
+
+        .save-info h3 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 2px
+        }
+
+        .save-info p {
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        .save-amount {
+            text-align: right;
+            flex: 1
+        }
+
+        .save-amount .current {
+            font-size: 12px;
+            color: var(--danger);
+            font-weight: 600
+        }
+
+        .save-amount .after {
+            font-size: 12px;
+            color: var(--aho);
+            font-weight: 600
+        }
+
+        .save-amount .saved {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--warn)
+        }
+
+        .save-desc {
+            font-size: 11px;
+            color: var(--muted2);
+            line-height: 1.65;
+            padding-top: 4px;
+            border-top: 1px solid var(--border)
+        }
+
+        /* ──────── TIMELINE ──────── */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0
+        }
+
+        .tl-item {
+            display: flex;
+            gap: 14px;
+            padding: 12px 0;
+            position: relative
+        }
+
+        .tl-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 48px;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+            z-index: 0
+        }
+
+        .tl-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1
+        }
+
+        .tl-body {
+            flex: 1
+        }
+
+        .tl-month {
+            font-size: 12px;
+            font-weight: 700
+        }
+
+        .tl-sub {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 1px
+        }
+
+        .tl-amount {
+            font-size: 15px;
+            font-weight: 800;
+            text-align: right;
+            white-space: nowrap
+        }
+
+        /* ──────── BALANCE TABLE ──────── */
+        .brow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, .03);
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            margin-bottom: 6px;
+            font-size: 12px
+        }
+
+        .brow:last-child {
+            margin-bottom: 0
+        }
+
+        .brow .bv {
+            font-weight: 700
+        }
+
+        .brow.total {
+            border-width: 2px;
+            padding: 10px 14px
+        }
+
+        /* ──────── CHART ──────── */
+        .chart-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 8px 0
+        }
+
+        .chart-leg {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .leg-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 12px
+        }
+
+        .leg-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0
+        }
+
+        /* ──────── PROJECTION ──────── */
+        .proj-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 14px;
+            background: var(--bg2);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+
+        .proj-row:last-child {
+            margin-bottom: 0
+        }
+
+        .pm {
+            font-size: 12px;
+            font-weight: 700
+        }
+
+        .ps {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 1px
+        }
+
+        /* ──────── BADGES ──────── */
+        .bdg {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: .4px
+        }
+
+        .bdg.red {
+            background: rgba(239, 68, 68, .18);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, .3)
+        }
+
+        .bdg.orange {
+            background: rgba(245, 158, 11, .18);
+            color: var(--warn);
+            border: 1px solid rgba(245, 158, 11, .3)
+        }
+
+        .bdg.green {
+            background: rgba(16, 185, 129, .18);
+            color: var(--aho);
+            border: 1px solid rgba(16, 185, 129, .3)
+        }
+
+        .bdg.cyan {
+            background: rgba(6, 182, 212, .18);
+            color: var(--nec);
+            border: 1px solid rgba(6, 182, 212, .3)
+        }
+
+        .bdg.purple {
+            background: rgba(139, 92, 246, .18);
+            color: var(--des);
+            border: 1px solid rgba(139, 92, 246, .3)
+        }
+
+        /* ──────── MOM MESSAGE ──────── */
+        .mom-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, .08), rgba(6, 182, 212, .05));
+            border: 1px solid rgba(16, 185, 129, .25);
+            border-radius: var(--radius);
+            padding: 22px;
+        }
+
+        .mom-msg {
+            background: rgba(0, 0, 0, .3);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--muted2);
+            font-style: italic;
+            margin: 12px 0;
+            white-space: pre-wrap;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, var(--aho), var(--aho2));
+            color: #fff;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: opacity .2s, transform .15s;
+            font-family: var(--font);
+        }
+
+        .copy-btn:hover {
+            opacity: .9;
+            transform: scale(1.03)
+        }
+
+        .copy-btn:active {
+            transform: scale(.97)
+        }
+
+        /* ──────── STREAMING GRID ──────── */
+        .stream-item {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stream-logo {
+            font-size: 22px;
+            width: 36px;
+            text-align: center;
+            flex-shrink: 0
+        }
+
+        .stream-info {
+            flex: 1
+        }
+
+        .stream-info .sn {
+            font-size: 12px;
+            font-weight: 700
+        }
+
+        .stream-info .sp {
+            font-size: 10px;
+            color: var(--muted)
+        }
+
+        .stream-cost {
+            font-size: 14px;
+            font-weight: 800
+        }
+
+        /* ──────── PRECIOS 2026 ──────── */
+        .price-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+
+        .price-item {
+            background: var(--bg2);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            border: 1px solid var(--border)
+        }
+
+        .price-item .pi-lbl {
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 3px
+        }
+
+        .price-item .pi-val {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--nec)
+        }
+
+        /* ──────── ANIMATIONS ──────── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, .3)
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(6, 182, 212, 0)
+            }
+        }
+
+        .rcard {
+            animation: fadeUp .5s ease both
+        }
+
+        .rule-cards .rcard:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .rule-cards .rcard:nth-child(2) {
+            animation-delay: .10s
+        }
+
+        .rule-cards .rcard:nth-child(3) {
+            animation-delay: .16s
+        }
+
+        .card,
+        .save-card,
+        .mom-card {
+            animation: fadeUp .5s ease .08s both
+        }
+
+        .avatar {
+            animation: pulse 3s infinite
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            font-size: 11px;
+            color: var(--muted);
+            padding: 18px;
+            border-top: 1px solid var(--border)
+        }
+
+        @media(max-width:900px) {
+
+            .strip,
+            .rule-cards,
+            .g2,
+            .g3,
+            .g4 {
+                grid-template-columns: 1fr
+            }
+
+            .clock-time {
+                font-size: 20px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ HEADER ═══ -->
+    <header>
+        <div class="logo">
+            <div class="avatar">VC</div>
+            <div class="logo-text">
+                <h1>Victor Cuaresma</h1>
+                <p>Dashboard Financiero Personal · Regla 50/30/20 · Lima, Perú 🇵🇪</p>
+            </div>
+        </div>
+        <div class="header-clock">
+            <div class="clock-time" id="clock">00:00:00</div>
+            <div class="clock-date" id="clkdate">—</div>
+            <div class="clock-zone">🇵🇪 Hora Lima · UTC−5</div>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- SALARY BAR -->
+        <div class="salary-bar">
+            <label><i class="fas fa-coins" style="color:var(--warn);margin-right:5px"></i>Sueldo mensual:</label>
+            <div class="sol-input">
+                <span class="sol-sym">S/</span>
+                <input type="number" id="salary" value="1000" min="0" step="50" />
+            </div>
+            <!-- INGRESO EXTRA -->
+            <div
+                style="display:flex;align-items:center;gap:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:8px 14px;flex-wrap:wrap">
+                <label
+                    style="font-size:11px;color:var(--aho);font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:6px">
+                    <input type="checkbox" id="extraToggle" onchange="update()"
+                        style="accent-color:var(--aho);width:14px;height:14px;cursor:pointer" />
+                    💵 Ingreso extra (no fijo)
+                </label>
+                <div style="display:flex;align-items:center;gap:5px">
+                    <span style="font-size:13px;font-weight:700;color:var(--aho)">S/</span>
+                    <input type="number" id="extraIncome" value="100" min="0" step="10"
+                        style="background:rgba(255,255,255,.05);border:1px solid rgba(16,185,129,.3);color:#fff;font-size:14px;font-weight:700;padding:4px 10px;border-radius:8px;width:80px;outline:none;font-family:var(--font)"
+                        oninput="update()" />
+                </div>
+            </div>
+            <span class="rule-badge">📊 Período 30 días · Regla 50 / 30 / 20</span>
+        </div>
+
+        <!-- SALDOS STRIP -->
+        <div class="strip">
+            <div class="scard" style="border-color:rgba(6,182,212,.2)">
+                <span class="scard-label"><i class="fas fa-wallet" style="color:var(--nec)"></i>Saldo hoy</span>
+                <span class="scard-val" style="color:var(--nec)">S/ 762.27</span>
+            </div>
+            <div class="scard" style="border-color:rgba(16,185,129,.2)">
+                <span class="scard-label"><i class="fas fa-piggy-bank" style="color:var(--aho)"></i>Guardado
+                    marzo</span>
+                <span class="scard-val" style="color:var(--aho)">S/ 412.82</span>
+            </div>
+            <div class="scard" style="border-color:rgba(139,92,246,.2)">
+                <span class="scard-label"><i class="fas fa-sigma" style="color:var(--des)"></i>Total disponible</span>
+                <span class="scard-val" style="color:var(--des)">S/ 1,175.09</span>
+            </div>
+            <div class="scard" style="border-color:rgba(239,68,68,.2)">
+                <span class="scard-label"><i class="fas fa-graduation-cap" style="color:var(--danger)"></i>Deuda
+                    título</span>
+                <span class="scard-val" style="color:var(--danger)">−S/ 1,300</span>
+            </div>
+        </div>
+
+        <!-- 50/30/20 -->
+        <div class="sec">Distribución mensual de tu sueldo</div>
+        <div class="rule-cards">
+            <div class="rcard nec">
+                <div class="rcard-glow"></div>
+                <div class="rcard-icon"><i class="fas fa-home"></i></div>
+                <div class="rcard-pct">50%</div>
+                <div class="rcard-label">Necesidades esenciales</div>
+                <div class="rcard-amount">S/ <span id="nec-amt">500.00</span></div>
+                <div class="rcard-used">Gastado: S/ <span id="nec-used">345.90</span></div>
+                <div class="pbar-wrap">
+                    <div class="pbar-row"><span>Uso del presupuesto</span><span id="nec-pct-lbl">69%</span></div>
+                    <div class="pbar">
+                        <div class="pfill" id="nec-bar" style="width:0"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="rcard des">
+                <div class="rcard-glow"></div>
+                <div class="rcard-icon"><i class="fas fa-star"></i></div>
+                <div class="rcard-pct">30%</div>
+                <div class="rcard-label">Deseos personales</div>
+                <div class="rcard-amount">S/ <span id="des-amt">300.00</span></div>
+                <div class="rcard-used">Gastado: S/ <span id="des-used">222.00</span></div>
+                <div class="pbar-wrap">
+                    <div class="pbar-row"><span>Uso del presupuesto</span><span id="des-pct-lbl">74%</span></div>
+                    <div class="pbar">
+                        <div class="pfill" id="des-bar" style="width:0"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="rcard aho">
+                <div class="rcard-glow"></div>
+                <div class="rcard-icon"><i class="fas fa-shield-halved"></i></div>
+                <div class="rcard-pct">20%</div>
+                <div class="rcard-label">Ahorro & Deudas</div>
+                <div class="rcard-amount">S/ <span id="aho-amt">200.00</span></div>
+                <div class="rcard-used">Meta: pagar título S/ 1,300</div>
+                <div class="pbar-wrap">
+                    <div class="pbar-row"><span>Progreso deuda</span><span id="aho-pct-lbl">0%</span></div>
+                    <div class="pbar">
+                        <div class="pfill" id="aho-bar" style="width:0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETALLE GASTOS -->
+        <div class="sec">Balance detallado de gastos — 30 días</div>
+        <div class="g2">
+
+            <!-- NECESIDADES 50% -->
+            <div class="card">
+                <div class="card-h"><i class="fas fa-house-circle-check" style="color:var(--nec)"></i>Necesidades (50%)
+                    &nbsp;·&nbsp; Presupuesto S/ <span id="nec-b">500</span></div>
+                <table class="etable">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Detalle</th>
+                            <th>S/ / mes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(6,182,212,.1)">🚌</span>Pasaje</td>
+                            <td style="color:var(--muted)">S/1.50 × 2 × <span id="pasaje-dias">30</span> días del mes
+                            </td>
+                            <td class="ok" id="pasaje-amt">90.00</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(16,185,129,.1)">🍱</span>Propina mamá</td>
+                            <td style="color:var(--muted)">Agradecimiento mensual</td>
+                            <td class="ok">50.00</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(59,130,246,.1)">🌐</span>Internet hogar</td>
+                            <td style="color:var(--muted)">Plan hogar 30 días</td>
+                            <td class="warn">79.90</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(245,158,11,.1)">📱</span>Teléfono (plan)</td>
+                            <td style="color:var(--muted)">Plan mensual personal</td>
+                            <td class="warn">39.90</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(239,68,68,.1)">💡</span>Agua / Luz / Gas</td>
+                            <td style="color:var(--muted)">Servicios básicos</td>
+                            <td class="warn">40.00</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(139,92,246,.1)">🧴</span>Higiene / Salud</td>
+                            <td style="color:var(--muted)">Jabón, pasta, medicinas</td>
+                            <td class="ok">20.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="tdiv">
+                    <span class="tl">Total necesidades</span>
+                    <span class="tr ok">S/ 295.90</span>
+                </div>
+                <div class="abox green"><i class="fas fa-circle-check"></i><span>Te sobran <strong>S/ <span
+                                id="nec-rem">204.10</span></strong> dentro del 50%. Muy bien gestionado.</span></div>
+            </div>
+
+            <!-- DESEOS 30% -->
+            <div class="card">
+                <div class="card-h"><i class="fas fa-sparkles" style="color:var(--des)"></i>Deseos (30%) &nbsp;·&nbsp;
+                    Presupuesto S/ <span id="des-b">300</span></div>
+
+                <!-- STREAMING -->
+                <div style="margin-bottom:10px">
+                    <div
+                        style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:8px">
+                        📡 Streaming &amp; Entretenimiento</div>
+                    <div class="g2" style="gap:8px">
+                        <div class="stream-item"><span class="stream-logo">📡</span>
+                            <div class="stream-info">
+                                <div class="sn">DirecTV GO</div>
+                                <div class="sp">Cable streaming</div>
+                            </div><span class="stream-cost warn">S/ 20</span>
+                        </div>
+                        <div class="stream-item"><span class="stream-logo">🎬</span>
+                            <div class="stream-info">
+                                <div class="sn">HBO Max</div>
+                                <div class="sp">Series &amp; películas</div>
+                            </div><span class="stream-cost warn">S/ 5</span>
+                        </div>
+                        <div class="stream-item"><span class="stream-logo">🏰</span>
+                            <div class="stream-info">
+                                <div class="sn">Disney+</div>
+                                <div class="sp">Contenido familiar</div>
+                            </div><span class="stream-cost warn">S/ 5</span>
+                        </div>
+                        <div class="stream-item"><span class="stream-logo">🎥</span>
+                            <div class="stream-info">
+                                <div class="sn">Netflix</div>
+                                <div class="sp">Series &amp; películas</div>
+                            </div><span class="stream-cost warn">S/ 15</span>
+                        </div>
+                        <div class="stream-item" style="grid-column:1/-1"><span class="stream-logo">▶️</span>
+                            <div class="stream-info">
+                                <div class="sn">YouTube Premium</div>
+                                <div class="sp">Sin anuncios + descarga</div>
+                            </div><span class="stream-cost ok">S/ 5</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin-top:6px;font-size:12px;font-weight:700">
+                        Total streaming: <span class="warn" style="margin-left:8px">S/ 50.00</span></div>
+                </div>
+
+                <table class="etable">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Detalle</th>
+                            <th>S/ / mes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(6,182,212,.1)">🥤</span>Bebidas diarias <span
+                                    class="tag tag-cut">Reducible</span></td>
+                            <td style="color:var(--muted)">S/2.50 avg × 30 días</td>
+                            <td class="danger">75.00</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(139,92,246,.1)">🎮</span>Ocio / Salidas</td>
+                            <td style="color:var(--muted)">Fines de semana</td>
+                            <td class="warn">50.00</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(16,185,129,.1)">👕</span>Ropa / Extras</td>
+                            <td style="color:var(--muted)">Compras no planificadas</td>
+                            <td class="warn">30.00</td>
+                        </tr>
+                        <tr>
+                            <td><span class="eicon" style="background:rgba(245,158,11,.1)">🍕</span>Snacks / Antojos
+                            </td>
+                            <td style="color:var(--muted)">Extras del día</td>
+                            <td class="warn">17.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="tdiv">
+                    <span class="tl">Total deseos</span>
+                    <span class="tr warn">S/ 222.00</span>
+                </div>
+                <div class="abox green"><i class="fas fa-circle-check"></i><span>Te sobran <strong>S/ <span
+                                id="des-rem">78.00</span></strong> dentro del 30%. ✅</span></div>
+            </div>
+        </div>
+
+        <!-- BALANCE GENERAL + PROYECCION -->
+        <div class="sec">Resumen mensual &amp; Proyección</div>
+        <div class="g2">
+
+            <div class="card">
+                <div class="card-h"><i class="fas fa-scale-balanced" style="color:var(--warn)"></i>Balance general del
+                    mes</div>
+                <div id="balance-general"></div>
+
+                <div class="sec" style="margin-top:18px">Compromisos grandes 2026</div>
+                <div class="timeline" id="timeline"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-h"><i class="fas fa-chart-pie" style="color:var(--des)"></i>Distribución visual</div>
+                <div class="chart-wrap">
+                    <canvas id="donut" style="max-width:160px;max-height:160px"></canvas>
+                    <div class="chart-leg" id="leg"></div>
+                </div>
+
+                <div class="sec" style="margin-top:18px">Proyección pago título</div>
+                <div id="proj"></div>
+            </div>
+        </div>
+
+        <!-- AHORRO INTELIGENTE -->
+        <div class="sec">💡 Dashboard de Ahorro — Dónde gastar menos</div>
+        <div class="g2" id="savings-grid"></div>
+
+        <!-- MAMA MESSAGE -->
+        <div class="sec">💚 Mensaje para mamá</div>
+        <div class="mom-card">
+            <div class="card-h" style="margin-bottom:8px"><i class="fas fa-heart" style="color:var(--aho)"></i>Mensaje
+                personalizado — copia y pega para enviarle</div>
+            <div class="mom-msg" id="momMsg"></div>
+            <button class="copy-btn" onclick="copyMsg()"><i class="fas fa-copy"></i> Copiar mensaje</button>
+            <div id="copyConfirm" style="display:none;margin-top:8px" class="abox green"><i
+                    class="fas fa-circle-check"></i><span>¡Mensaje copiado! Pégalo en WhatsApp. 💚</span></div>
+        </div>
+
+        <!-- PRECIOS 2026 -->
+        <div class="sec">🏷️ Referencia de precios Lima 2026</div>
+        <div class="card">
+            <div class="card-h"><i class="fas fa-tags" style="color:var(--warn)"></i>Contexto económico Lima 2026</div>
+            <div class="price-grid">
+                <div class="price-item">
+                    <div class="pi-lbl">Sueldo Mínimo Vital (RMV)</div>
+                    <div class="pi-val">S/ 1,025</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Canasta básica familiar/mes</div>
+                    <div class="pi-val">S/ 750 – 900</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Almuerzo menú Lima centro</div>
+                    <div class="pi-val">S/ 10 – 18</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Internet hogar (Movistar/Claro)</div>
+                    <div class="pi-val">S/ 70 – 110</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Pasaje bus Lima</div>
+                    <div class="pi-val">S/ 1.50 – 2.50</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Agua 625ml bodega/tienda</div>
+                    <div class="pi-val">S/ 1.50 – 2.50</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Gaseosa personal 500ml</div>
+                    <div class="pi-val">S/ 2.00 – 3.50</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Alquiler cuarto Lima</div>
+                    <div class="pi-val">S/ 350 – 650</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">DirecTV GO (básico)</div>
+                    <div class="pi-val">S/ 20 – 35</div>
+                </div>
+                <div class="price-item">
+                    <div class="pi-lbl">Netflix plan estándar Perú</div>
+                    <div class="pi-val">S/ 15 – 28</div>
+                </div>
+            </div>
+            <div class="abox blue" style="margin-top:14px">
+                <i class="fas fa-info-circle"></i>
+                <span>Tu sueldo de S/ 1,000 está ligeramente por debajo del mínimo vital (S/ 1,025). Con la regla
+                    50/30/20, el apoyo del almuerzo de tu mamá y controlando los streaming, tu situación es
+                    <strong>manejable y mejora con el tiempo</strong>. La clave: primero pagar el título, luego
+                    ahorrar.</span>
+            </div>
+        </div>
+
+        <!-- PDF REPORT -->
+        <div class="sec">📄 Reporte mensual — Propuesta de ahorro</div>
+        <div class="card" id="pdf-section">
+            <div class="card-h"><i class="fas fa-file-pdf" style="color:var(--danger)"></i>Generador de Reporte PDF ·
+                Plan Abril–Septiembre 2026</div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Genera un PDF con la propuesta mensual de
+                gastos, ahorro y recomendaciones personalizadas para Victor Cuaresma.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+                <button onclick="generatePDF()"
+                    style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;padding:10px 22px;border-radius:99px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:var(--font);transition:opacity .2s"
+                    onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i
+                        class="fas fa-file-pdf"></i> Descargar PDF</button>
+                <div style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px"><i
+                        class="fas fa-info-circle"></i>Incluye: plan mensual, balance, recomendaciones de ahorro y
+                    timeline de compromisos.</div>
+            </div>
+            <div id="pdf-preview" style="overflow-x:auto">
+                <table class="etable" style="min-width:600px">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Ingreso</th>
+                            <th>Gastos fijos</th>
+                            <th>Ahorro 20%</th>
+                            <th>Compromiso</th>
+                            <th>Libre</th>
+                            <th>Recomendación clave</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pdf-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>Victor Cuaresma · Dashboard Financiero · 50/30/20 · Lima, Perú 🇵🇪 · <span id="fy"></span></footer>
+
+    <script>
+        // ── RELOJ PERÚ (UTC-5) ──
+        function peruNow() {
+            const utc = Date.now() + (new Date().getTimezoneOffset() * 60000);
+            return new Date(utc + (-5 * 3600000));
+        }
+        function updateClock() {
+            const t = peruNow();
+            const pad = n => String(n).padStart(2, '0');
+            document.getElementById('clock').textContent = `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}`;
+            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            document.getElementById('clkdate').textContent = `${dias[t.getDay()]}, ${t.getDate()} de ${meses[t.getMonth()]} de ${t.getFullYear()}`;
+            document.getElementById('fy').textContent = t.getFullYear();
+        }
+        updateClock(); setInterval(updateClock, 1000);
+
+        // ── DÍAS TOTALES DEL MES (trabaja todos los días, sin descanso) ──
+        const _hoy = peruNow();
+        const DIAS_MES = new Date(_hoy.getFullYear(), _hoy.getMonth() + 1, 0).getDate(); // 30 o 31 según calendario
+        const PASAJE_MES = parseFloat((1.50 * 2 * DIAS_MES).toFixed(2)); // S/3 × días del mes
+
+        // ── DATOS ──
+        // pasaje: S/1.50 ida + S/1.50 vuelta × TODOS los días del mes (30 o 31)
+        const NEC = { pasaje: PASAJE_MES, propina: 50, internet: 79.90, telefono: 39.90, servicios: 40, higiene: 20 };
+        // bebidas: S/3 mín × 15 días (un día sí, un día no)
+        const DES = { directv: 20, hbo: 5, disney: 5, netflix: 15, youtube: 5, bebidas: 45, ocio: 50, ropa: 30, snacks: 17 };
+        const NEC_T = Object.values(NEC).reduce((a, b) => a + b, 0);
+        const DES_T = Object.values(DES).reduce((a, b) => a + b, 0);
+
+        const fmt = n => n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const $ = id => document.getElementById(id);
+
+        // ── COMPROMISOS ──
+        const COMMITS = [
+            { m: 'Abril 2026', icon: '📱', label: 'Teléfono propio', amt: 700, color: 'var(--danger)', type: 'red' },
+            { m: 'Mayo 2026', icon: '📱', label: 'Teléfono hermano', amt: 450, color: 'var(--warn)', type: 'orange' },
+            { m: 'Junio 2026', icon: '📺', label: 'TV para el Mundial FIFA 2026', amt: 650, color: 'var(--nec)', type: 'cyan' },
+            { m: 'Julio 2026+', icon: '💰', label: 'Inicio ahorro intensivo', amt: null, color: 'var(--aho)', type: 'green' },
+        ];
+
+        function update() {
+            const sal = parseFloat($('salary').value) || 0;
+            const extraOn = $('extraToggle').checked;
+            const extra = extraOn ? (parseFloat($('extraIncome').value) || 0) : 0;
+            const totalIncome = sal + extra;
+            const nec = sal * .50, des = sal * .30, aho = sal * .20;
+
+            $('nec-amt').textContent = fmt(nec); $('des-amt').textContent = fmt(des); $('aho-amt').textContent = fmt(aho);
+            $('nec-b').textContent = fmt(nec); $('des-b').textContent = fmt(des);
+            $('nec-used').textContent = fmt(NEC_T); $('des-used').textContent = fmt(DES_T);
+
+            const necR = nec - NEC_T, desR = des - DES_T;
+            $('nec-rem').textContent = fmt(Math.max(necR, 0));
+            $('des-rem').textContent = fmt(Math.max(desR, 0));
+
+            // Pasaje label dinámico
+            $('pasaje-dias').textContent = DIAS_MES;
+            $('pasaje-amt').textContent = fmt(PASAJE_MES);
+
+            // Progress bars
+            animBar('nec-bar', Math.min((NEC_T / nec) * 100, 100));
+            animBar('des-bar', Math.min((DES_T / des) * 100, 100));
+            animBar('aho-bar', Math.min((412.82 / 1300) * 100, 100));
+            $('nec-pct-lbl').textContent = Math.round((NEC_T / nec) * 100) + '%';
+            $('des-pct-lbl').textContent = Math.round((DES_T / des) * 100) + '%';
+            $('aho-pct-lbl').textContent = Math.round((412.82 / 1300) * 100) + '%';
+
+            updateChart(nec, des, aho);
+            renderBalance(sal, aho, extra, extraOn);
+            renderTimeline();
+            renderProj(aho);
+            renderSavings();
+            renderMomMsg();
+        }
+
+        function animBar(id, pct) { setTimeout(() => { $(id).style.width = pct + '%' }, 120) }
+
+        function updateChart(nec, des, aho) {
+            const ctx = $('donut').getContext('2d');
+            if (window._chart) window._chart.destroy();
+            window._chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Necesid.', 'Deseos', 'Ahorro'],
+                    datasets: [{ data: [nec, des, aho], backgroundColor: ['#06b6d4', '#8b5cf6', '#10b981'], borderColor: ['#070b12'], borderWidth: 4, hoverOffset: 8 }]
+                },
+                options: { cutout: '66%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` S/ ${fmt(c.parsed)}` } } }, animation: { animateScale: true, duration: 900 } }
+            });
+            const C = ['#06b6d4', '#8b5cf6', '#10b981'], L = ['Necesidades (50%)', 'Deseos (30%)', 'Ahorro (20%)'], A = [nec, des, aho];
+            $('leg').innerHTML = L.map((l, i) => `<div class="leg-item"><div class="leg-dot" style="background:${C[i]}"></div><div><div style="font-weight:700;font-size:12px">${l}</div><div style="color:var(--muted);font-size:10px">S/ ${fmt(A[i])}</div></div></div>`).join('');
+        }
+
+        function renderBalance(sal, aho, extra, extraOn) {
+            extra = extra || 0;
+            const total = NEC_T + DES_T + aho;
+            const libre = sal + extra - total;
+            const c = libre >= 0 ? 'var(--aho)' : 'var(--danger)';
+            const extraRow = extraOn && extra > 0
+                ? `<div class="brow" style="border-color:rgba(16,185,129,.25)">
+                   <span>💵 Ingreso extra <span style="font-size:10px;color:var(--muted)">(no fijo)</span></span>
+                   <span class="bv ok">+S/ ${fmt(extra)}</span>
+                 </div>` : '';
+            $('balance-general').innerHTML = `
+    <div class="brow"><span>💰 Sueldo mensual</span><span class="bv ok">+S/ ${fmt(sal)}</span></div>
+    ${extraRow}
+    <div class="brow"><span>🏠 Necesidades reales</span><span class="bv" style="color:var(--nec)">−S/ ${fmt(NEC_T)}</span></div>
+    <div class="brow"><span>⭐ Deseos reales</span><span class="bv" style="color:var(--des)">−S/ ${fmt(DES_T)}</span></div>
+    <div class="brow"><span>🛡️ Ahorro / Deuda título</span><span class="bv ok">−S/ ${fmt(aho)}</span></div>
+    <div class="brow total" style="border-color:${c}44;background:${c}08">
+      <span style="font-weight:800">💵 Libre al mes</span>
+      <span style="font-weight:900;font-size:18px;color:${c}">S/ ${fmt(libre)}</span>
+    </div>
+    ${extraOn && extra > 0 ? `<div style="font-size:10px;color:var(--muted);margin-top:6px;padding:0 4px">⚠️ El ingreso extra de S/ ${fmt(extra)} no es fijo — no lo uses para gastos recurrentes.</div>` : ''}`;
+        }
+
+        function renderTimeline() {
+            $('timeline').innerHTML = COMMITS.map(c => {
+                const amtHtml = c.amt
+                    ? `<div class="tl-amount" style="color:${c.color}">−S/ ${fmt(c.amt)}</div>`
+                    : `<div class="bdg green">Ahorro 🎉</div>`;
+                return `<div class="tl-item">
+      <div class="tl-dot" style="background:${c.color}22;color:${c.color}">${c.icon}</div>
+      <div class="tl-body"><div class="tl-month">${c.m}</div><div class="tl-sub">${c.label}</div></div>
+      ${amtHtml}
+    </div>`;
+            }).join('');
+        }
+
+        const MONTHS = ['Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre'];
+        function renderProj(aho) {
+            let acum = 412.82;
+            const deuda = 1300;
+            $('proj').innerHTML = MONTHS.map((m, i) => {
+                acum += aho;
+                const pct = Math.min(Math.round(acum / deuda * 100), 100);
+                let bdg = '';
+                if (pct >= 100 && !bdg) bdg = `<span class="bdg green">✅ Pagado</span>`;
+                else if (m === 'Abril') bdg = `<span class="bdg red">−S/700 tel.</span>`;
+                else if (m === 'Mayo') bdg = `<span class="bdg orange">−S/450 herm.</span>`;
+                else if (m === 'Junio') bdg = `<span class="bdg cyan">📺 −S/650</span>`;
+                return `<div class="proj-row">
+      <div><div class="pm">${m} 2026</div><div class="ps">Acum. ahorro: S/ ${fmt(acum)} · ${pct}% de deuda</div></div>
+      <div>${bdg}</div>
+    </div>`;
+            }).join('');
+        }
+
+        function renderSavings() {
+            const SAVES = [
+                {
+                    emoji: '🥤', bg: 'rgba(239,68,68,.12)', color: 'var(--danger)',
+                    title: 'Bebidas — día por medio', sub: 'S/3 mín · un día sí, un día no',
+                    current: 90, after: 45, saved: 45,
+                    desc: 'Antes: S/3/día × 30 = S/90/mes. Estrategia: un día llevas agua de casa (S/0), al siguiente compras (S/3). Resultado: S/3 × 15 días = S/45/mes. Ahorro: S/45/mes = S/540/año sin esfuerzo.',
+                },
+                {
+                    emoji: '📡', bg: 'rgba(139,92,246,.12)', color: 'var(--des)',
+                    title: '5 Streaming simultáneos', sub: 'DirecTV + HBO + Disney + Netflix + YouTube',
+                    current: 50, after: 25, saved: 25,
+                    desc: 'S/50/mes en streams. Estrategia inteligente: mantén DirecTV (S/20) + YouTube (S/5) siempre. Rota el resto: Netflix un mes, HBO al siguiente, Disney al otro. Ahorro: S/25/mes = S/300/año.',
+                },
+                {
+                    emoji: '🎮', bg: 'rgba(245,158,11,.12)', color: 'var(--warn)',
+                    title: 'Ocio y salidas', sub: 'Planifica 1 salida grande al mes',
+                    current: 50, after: 25, saved: 25,
+                    desc: 'Reduce de salidas espontáneas a 1 salida planificada/mes. Lima tiene muchas opciones gratuitas: Parque de la Reserva, eventos Municipalidad, ciclovías. Ahorro: S/25/mes.',
+                },
+                {
+                    emoji: '🌐', bg: 'rgba(59,130,246,.12)', color: 'var(--info)',
+                    title: 'Internet hogar — precio fijo', sub: 'Compartido con abuelo ✅',
+                    current: 79.90, after: 79.90, saved: 0,
+                    fixed: true,
+                    desc: 'El internet de S/79.90 es un gasto fijo y necesario — lo compartes con tu abuelo, así que no se puede reducir. Es una responsabilidad familiar válida. ¡Buen gesto! Solo asegúrate de que el plan cubra bien ambos.',
+                },
+            ];
+
+            $('savings-grid').innerHTML = SAVES.map(s => `
+    <div class="save-card" style="${s.fixed ? 'opacity:.75;border-color:rgba(59,130,246,.2)' : ''}">
+      <div class="save-card-top">
+        <div class="save-emoji" style="background:${s.bg};color:${s.color}">${s.emoji}</div>
+        <div class="save-info"><h3>${s.title}</h3><p>${s.sub}</p></div>
+        <div class="save-amount">
+          <div class="current">Actual: S/ ${fmt(s.current)}</div>
+          ${s.fixed
+                    ? '<div style="font-size:11px;color:var(--info);font-weight:600">✅ Precio fijo justo</div>'
+                    : `<div class="after">Optimizado: S/ ${fmt(s.after)}</div><div class="saved">Ahorro: S/ ${fmt(s.saved)}/mes</div>`}
+        </div>
+      </div>
+      <div class="save-desc">${s.desc}</div>
+    </div>
+  `).join('');
+        }
+
+        // ── MENSAJE MAMÁ ──
+        const MOM_TEXT = `Mamá, este pequeño monto es el comienzo de una propina mensual que quiero darte como agradecimiento por prepararme el almuerzo cada día. Sé que vas a decir que no hace falta, pero para mí sí importa. Tú me ahorras mucho y me das energía para seguir adelante en el trabajo.
+
+Es solo el inicio — conforme vaya creciendo económicamente, voy a ir aumentando lo que te doy. Gracias por todo tu apoyo y por estar siempre ahí.
+
+Con todo mi cariño,
+Victor ❤️`;
+
+        function renderMomMsg() { $('momMsg').textContent = MOM_TEXT }
+
+        function copyMsg() {
+            navigator.clipboard.writeText(MOM_TEXT).then(() => {
+                $('copyConfirm').style.display = 'flex';
+                setTimeout(() => $('copyConfirm').style.display = 'none', 4000);
+            });
+        }
+
+        // ── RENDER PDF PREVIEW TABLE ──
+        const PLAN_MONTHS = [
+            { m: 'Abril', special: 700, specialLabel: '📱 Teléfono propio', tip: 'Usa tu saldo disponible (S/762). No toques el 20% de ahorro del título.' },
+            { m: 'Mayo', special: 450, specialLabel: '📱 Teléfono hermano', tip: 'Con el saldo restante de abril más el libre de mayo puedes cubrirlo cómodamente.' },
+            { m: 'Junio', special: 650, specialLabel: '📺 TV para el Mundial', tip: 'Compra la TV al inicio de junio para disfrutar el Mundial FIFA 2026.' },
+            { m: 'Julio', special: 0, specialLabel: '— Sin gasto especial', tip: 'Mes de recuperación. Destina el libre (S/312) a reforzar el pago del título.' },
+            { m: 'Agosto', special: 0, specialLabel: '🎓 Título casi pagado', tip: 'Con el 20% acumulado llevas ~S/1,213 ahorrados. ¡Casi llegas a los S/1,300!' },
+            { m: 'Septiembre', special: 0, specialLabel: '✅ Título pagado', tip: 'El 20% (S/200) ahora es LIBRE. Destínalo a fondo de emergencia o TV/viaje.' },
+        ];
+
+        function renderPdfTable() {
+            const NEC_TOTAL = Object.values(NEC).reduce((a, b) => a + b, 0);
+            const DES_TOTAL = Object.values(DES).reduce((a, b) => a + b, 0);
+            const sal = parseFloat($('salary').value) || 1000;
+            const aho = sal * 0.20;
+            const libre = sal - NEC_TOTAL - DES_TOTAL - aho;
+            const body = $('pdf-table-body');
+            if (!body) return;
+            body.innerHTML = PLAN_MONTHS.map(row => {
+                const netLibre = libre - row.special;
+                const c = netLibre >= 0 ? 'var(--aho)' : 'var(--danger)';
+                return `<tr>
+              <td><strong>${row.m} 2026</strong></td>
+              <td class="ok">+S/${fmt(sal)}</td>
+              <td style="color:var(--nec)">S/${fmt(NEC_TOTAL + DES_TOTAL)}</td>
+              <td style="color:var(--aho)">S/${fmt(aho)}</td>
+              <td style="color:var(--warn);font-size:11px">${row.specialLabel}${row.special > 0 ? ' −S/' + fmt(row.special) : ''}</td>
+              <td style="color:${c};font-weight:700">S/${fmt(netLibre)}</td>
+              <td style="font-size:10px;color:var(--muted)">${row.tip}</td>
+            </tr>`;
+            }).join('');
+        }
+
+        // ── PDF GENERATOR ──
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            const sal = parseFloat($('salary').value) || 1000;
+            const aho = sal * 0.20;
+            const NEC_TOTAL = Object.values(NEC).reduce((a, b) => a + b, 0);
+            const DES_TOTAL = Object.values(DES).reduce((a, b) => a + b, 0);
+            const libre = sal - NEC_TOTAL - DES_TOTAL - aho;
+
+            const t = peruNow();
+            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const fechaStr = `${dias[t.getDay()]}, ${t.getDate()} de ${meses[t.getMonth()]} de ${t.getFullYear()}`;
+            const W = doc.internal.pageSize.getWidth();
+
+            // ── PORTADA ──
+            doc.setFillColor(7, 11, 18); doc.rect(0, 0, W, 297, 'F');
+            // Header bar
+            doc.setFillColor(6, 182, 212); doc.rect(0, 0, W, 2, 'F');
+            // Avatar circle
+            doc.setFillColor(17, 24, 39); doc.circle(W / 2, 38, 16, 'F');
+            doc.setFillColor(6, 182, 212); doc.circle(W / 2, 38, 15, 'F');
+            doc.setTextColor(7, 11, 18); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+            doc.text('VC', W / 2, 42, { align: 'center' });
+            // Title
+            doc.setTextColor(255, 255, 255); doc.setFontSize(20); doc.setFont('helvetica', 'bold');
+            doc.text('Victor Cuaresma', W / 2, 62, { align: 'center' });
+            doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+            doc.text('Dashboard Financiero Personal — Regla 50/30/20', W / 2, 70, { align: 'center' });
+            doc.text('Lima, Peru  |  ' + fechaStr, W / 2, 77, { align: 'center' });
+
+            // Summary boxes
+            const boxes = [
+                { label: 'Sueldo Mensual', val: 'S/ ' + sal.toFixed(2), c: [6, 182, 212] },
+                { label: 'Necesidades (50%)', val: 'S/ ' + (sal * 0.5).toFixed(2), c: [14, 116, 144] },
+                { label: 'Deseos (30%)', val: 'S/ ' + (sal * 0.3).toFixed(2), c: [139, 92, 246] },
+                { label: 'Ahorro (20%)', val: 'S/ ' + aho.toFixed(2), c: [16, 185, 129] },
+            ];
+            const bw = (W - 30) / 4, bx0 = 15;
+            boxes.forEach((b, i) => {
+                const bx = bx0 + i * (bw + 2);
+                doc.setFillColor(17, 24, 39); doc.roundedRect(bx, 86, bw, 18, 2, 2, 'F');
+                doc.setFillColor(...b.c); doc.roundedRect(bx, 86, bw, 1.5, 0.5, 0.5, 'F');
+                doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+                doc.text(b.label, bx + bw / 2, 92, { align: 'center' });
+                doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255);
+                doc.text(b.val, bx + bw / 2, 99, { align: 'center' });
+            });
+
+            // ── PLAN MENSUAL TABLE ──
+            doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(6, 182, 212);
+            doc.text('Plan Mensual Abril — Septiembre 2026', 15, 116);
+
+            const rows = PLAN_MONTHS.map(row => {
+                const net = libre - row.special;
+                return [
+                    row.m + ' 2026',
+                    'S/ ' + sal.toFixed(2),
+                    'S/ ' + (NEC_TOTAL + DES_TOTAL).toFixed(2),
+                    'S/ ' + aho.toFixed(2),
+                    row.special > 0 ? '-S/ ' + row.special.toFixed(2) : '—',
+                    (net >= 0 ? '+' : '') + 'S/ ' + net.toFixed(2),
+                    row.tip,
+                ];
+            });
+
+            doc.autoTable({
+                startY: 120,
+                head: [['Mes', 'Ingreso', 'Gastos Fij.', 'Ahorro', 'Compromiso', 'Libre', 'Recomendación']],
+                body: rows,
+                styles: { fontSize: 7.5, cellPadding: 2.5, font: 'helvetica', textColor: [226, 232, 240], fillColor: [17, 24, 39], lineColor: [255, 255, 255, 15], lineWidth: .15 },
+                headStyles: { fillColor: [14, 116, 144], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+                alternateRowStyles: { fillColor: [22, 30, 46] },
+                columnStyles: {
+                    0: { cellWidth: 20, fontStyle: 'bold' },
+                    1: { cellWidth: 18, halign: 'right' },
+                    2: { cellWidth: 20, halign: 'right' },
+                    3: { cellWidth: 18, halign: 'right' },
+                    4: { cellWidth: 20, halign: 'right' },
+                    5: { cellWidth: 18, halign: 'right', fontStyle: 'bold' },
+                    6: { cellWidth: 'auto', fontSize: 6.5 },
+                },
+                margin: { left: 15, right: 15 },
+            });
+
+            // ── SAVINGS SECTION ──
+            const y2 = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(16, 185, 129);
+            doc.text('Oportunidades de Ahorro Mensual', 15, y2);
+
+            doc.autoTable({
+                startY: y2 + 4,
+                head: [['Gasto', 'Actual S/', 'Optimizado S/', 'Ahorro S//mes', 'Estrategia']],
+                body: [
+                    ['Bebidas diarias', '90.00', '45.00', '45.00', 'Un dia si, un dia no (min S/3). En 1 ano: S/540 extra.'],
+                    ['Streaming (x5)', '50.00', '25.00', '25.00', 'Rota: DirecTV+YouTube fijos. Cambia Netflix/HBO/Disney mensualmente.'],
+                    ['Ocio y salidas', '50.00', '25.00', '25.00', '1 salida planificada/mes. Aprovecha eventos gratuitos de Lima.'],
+                    ['Internet hogar', '79.90', '79.90', '0.00', 'FIJO — compartido con abuelo. No reducible. Gasto familiar valido.'],
+                ],
+                styles: { fontSize: 8, cellPadding: 2.5, textColor: [226, 232, 240], fillColor: [17, 24, 39], lineColor: [255, 255, 255, 15], lineWidth: .15 },
+                headStyles: { fillColor: [5, 150, 105], textColor: [255, 255, 255], fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [22, 30, 46] },
+                columnStyles: {
+                    0: { cellWidth: 28, fontStyle: 'bold' },
+                    1: { cellWidth: 20, halign: 'right' },
+                    2: { cellWidth: 22, halign: 'right' },
+                    3: { cellWidth: 20, halign: 'right', fontStyle: 'bold' },
+                    4: { cellWidth: 'auto', fontSize: 7 },
+                },
+                margin: { left: 15, right: 15 },
+            });
+
+            // ── FOOTER ──
+            const yf = doc.lastAutoTable.finalY + 10;
+            doc.setDrawColor(6, 182, 212); doc.setLineWidth(.3);
+            doc.line(15, yf, W - 15, yf);
+            doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+            doc.text('Victor Cuaresma  ·  Dashboard Financiero Personal  ·  Regla 50/30/20  ·  Lima, Peru', W / 2, yf + 5, { align: 'center' });
+            doc.text('Generado el: ' + fechaStr, W / 2, yf + 10, { align: 'center' });
+            doc.setFillColor(6, 182, 212); doc.rect(0, 295, W, 2, 'F');
+
+            doc.save('Reporte_Financiero_Victor_Cuaresma_2026.pdf');
+        }
+
+        // ── MAIN ──
+        update();
+        renderPdfTable();
+        $('salary').addEventListener('input', () => { update(); renderPdfTable(); });
+    </script>
+</body>
+
+</html>
